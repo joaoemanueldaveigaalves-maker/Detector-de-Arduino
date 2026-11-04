@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detector de Mentiras com Arduino e KY-039 | Projeto Escolar</title>
+<meta name="description" content="Como funciona um detector de mentiras com Arduino Uno, sensor de pulso KY-039 e display OLED: componentes, custo, código completo e limitações.">
+<meta name="author" content="João Emanuel">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="theme-color" content="#07100d">
+<link rel="canonical" href="https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307100d'/%3E%3Cpath d='M6 34h12l5-14 9 26 6-18 4 6h16' fill='none' stroke='%234ce694' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+<meta property="og:type" content="article">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Detector de Mentiras com Arduino">
+<meta property="og:title" content="Detector de Mentiras com Arduino e KY-039 | Projeto Escolar">
+<meta property="og:description" content="Como funciona um detector de mentiras com Arduino Uno, sensor de pulso KY-039 e display OLED: componentes, custo, código completo e limitações.">
+<meta property="og:url" content="https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/">
+<meta property="og:image" content="https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Detector de Mentiras com Arduino, sensor KY-039 e display OLED">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Detector de Mentiras com Arduino e KY-039 | Projeto Escolar">
+<meta name="twitter:description" content="Como funciona um detector de mentiras com Arduino Uno, sensor de pulso KY-039 e display OLED: componentes, custo, código completo e limitações.">
+<meta name="twitter:image" content="https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/img/og-image.jpg">
+
+<!-- Dados estruturados (schema.org) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/#site",
+      "url": "https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/",
+      "name": "Detector de Mentiras com Arduino",
+      "inLanguage": "pt-BR"
+    },
+    {
+      "@type": "Article",
+      "@id": "https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/#projeto",
+      "mainEntityOfPage": "https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/",
+      "headline": "Detector de Mentiras com Arduino e sensor de pulso KY-039",
+      "description": "Como funciona um detector de mentiras com Arduino Uno, sensor de pulso KY-039 e display OLED: componentes, custo, código completo e limitações.",
+      "image": "https://joaoemanueldaveigaalves-maker.github.io/detector-mentiras-arduino/img/og-image.jpg",
+      "inLanguage": "pt-BR",
+      "datePublished": "2026-11-03",
+      "author": {
+        "@type": "Person",
+        "name": "João Emanuel"
+      },
+      "about": [
+        "Arduino",
+        "Sensor de pulso KY-039",
+        "Display OLED SSD1306",
+        "Frequência cardíaca",
+        "Polígrafo"
+      ]
+    }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+<!-- ============ TRILHA DE PULSO DE FUNDO (decorativa) ============ -->
+<div class="pulse-track" aria-hidden="true">
+  <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+    <path id="bgPulsePath" d="M0,30 L1200,30" />
+  </svg>
+</div>
+
+<!-- ============ MENU ============ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-brand">
+      <span class="nav-brand-pulse" aria-hidden="true"></span>
+      DETECTOR<span class="dim">.dev</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#sobre">Sobre</a>
+      <a href="#funcionamento">Funcionamento</a>
+      <a href="#componentes">Componentes</a>
+      <a href="#custo">Materiais</a>
+      <a href="#tecnologias">Tecnologias</a>
+      <a href="#codigo">Código</a>
+      <a href="#processo">Processo</a>
+      <a href="#mundo">No mundo</a>
+      <a href="#limitacoes">Limitações</a>
+      <a href="#agradecimentos">Agradecimentos</a>
+      <a href="#sobre-mim">Sobre mim</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ 1. HERO ============ -->
+<section class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-content">
+    <p class="eyebrow"></p>
+    <h1 class="hero-title" id="typedTitle" aria-label="Detector de Mentiras com Arduino">Detector de Mentiras com Arduino</h1>
+    <p class="hero-subtitle">"A tecnologia consegue identificar alterações causadas por uma mentira?"</p>
+    <p class="hero-desc">Um projeto experimental que utiliza Arduino, o sensor de pulso KY-039, um display OLED e dois botões para monitorar alterações na frequência cardíaca durante diferentes perguntas e situações.</p>
+    <a href="#sobre" class="btn btn-primary">Conheça o projeto</a>
+  </div>
+
+  <div class="hero-visual">
+    <div class="device-card">
+      <svg class="device-svg" viewBox="0 0 360 300" aria-hidden="true">
+        <!-- placa arduino -->
+        <rect x="30" y="70" width="180" height="120" rx="10" class="board-body"/>
+        <rect x="30" y="70" width="180" height="120" rx="10" class="board-outline"/>
+        <circle cx="50" cy="90" r="4" class="board-hole"/>
+        <circle cx="190" cy="90" r="4" class="board-hole"/>
+        <circle cx="50" cy="170" r="4" class="board-hole"/>
+        <circle cx="190" cy="170" r="4" class="board-hole"/>
+        <rect x="50" y="105" width="46" height="30" rx="3" class="board-chip"/>
+        <g class="board-pins">
+          <rect x="45" y="75" width="140" height="6" class="pin-row"/>
+          <rect x="45" y="179" width="140" height="6" class="pin-row"/>
+        </g>
+        <text x="70" y="160" class="board-label">ARDUINO</text>
+        <!-- fio -->
+        <path d="M210,130 C 240,130 240,90 270,90" class="wire" />
+        <!-- sensor -->
+        <circle cx="300" cy="90" r="30" class="sensor-ring"/>
+        <circle cx="300" cy="90" r="30" class="sensor-ring pulse-ring"/>
+        <path d="M285,90 L293,90 L297,78 L303,102 L308,90 L315,90" class="sensor-line"/>
+        <!-- led -->
+        <circle cx="150" cy="220" r="9" class="led"/>
+        <path d="M150,190 L150,175" class="wire-thin"/>
+      </svg>
+      <div class="device-caption">
+        <span class="live-dot" aria-hidden="true"></span>
+        Arduino + sensor KY-039 + display OLED
+      </div>
+    </div>
+  </div>
+
+  <a href="#sobre" class="scroll-cue" aria-label="Rolar para baixo"><span></span></a>
+</section>
+
+<!-- ============ 2. SOBRE O PROJETO ============ -->
+<section class="section" id="sobre">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Sobre o Projeto</h2>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p><strong>O que é:</strong> este projeto usa um Arduino ligado a um sensor infravermelho de pulso (KY-039) para observar, em tempo real, como a frequência cardíaca de uma pessoa reage a diferentes perguntas.</p>
+        <p><strong>Objetivo:</strong> investigar se é possível perceber, por meio de sinais fisiológicos simples, alterações associadas a situações de tensão — como responder a uma pergunta inesperada.</p>
+        <p><strong>Por que esse tema:</strong> une três áreas que despertam curiosidade — eletrônica, programação e o funcionamento do corpo humano — em um experimento visual e fácil de entender.</p>
+        <p><strong>Como surgiu a ideia:</strong> a partir de detectores de mentira (polígrafos) usados em investigações, buscamos entender e reproduzir, de forma simplificada e educativa, o princípio por trás desses aparelhos.</p>
+        <p><strong>Qual problema demonstra:</strong> o projeto mostra que sinais do corpo podem indicar estresse ou nervosismo — mas não provam, sozinhos, que alguém está mentindo.</p>
+      </div>
+      <div class="about-side reveal">
+        <div class="mini-card">
+          <span class="mini-card-icon"></span>
+          <h3>Ciência</h3>
+          <p>Observação de sinais fisiológicos e formulação de hipóteses testáveis.</p>
+        </div>
+        <div class="mini-card">
+          <span class="mini-card-icon"></span>
+          <h3>Eletrônica</h3>
+          <p>Captação do sinal analógico do KY-039, com resultado mostrado em um display OLED.</p>
+        </div>
+        <div class="mini-card">
+          <span class="mini-card-icon"></span>
+          <h3>Programação</h3>
+          <p>Leitura, processamento e exibição dos dados coletados pelo sensor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. COMO FUNCIONA ============ -->
+<section class="section section-alt" id="funcionamento">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Como Funciona</h2>
+
+    <div class="flow reveal">
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 48 48" class="flow-icon-svg" aria-hidden="true">
+            <circle cx="24" cy="15" r="8" class="ci-ring"/>
+            <path d="M10,40 C10,27 38,27 38,40" class="ci-line"/>
+          </svg>
+        </div>
+        <h3>Pessoa</h3>
+        <p>A pessoa responde às perguntas durante o teste.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true"><span></span></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 48 48" class="flow-icon-svg" aria-hidden="true">
+            <circle cx="24" cy="24" r="16" class="ci-ring"/>
+            <path d="M10,24 L18,24 L21,13 L27,35 L30,24 L38,24" class="ci-line"/>
+          </svg>
+        </div>
+        <h3>Sensor</h3>
+        <p>O KY-039 detecta o pulso no dedo usando luz infravermelha.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true"><span></span></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 48 48" class="flow-icon-svg" aria-hidden="true">
+            <rect x="8" y="12" width="32" height="24" rx="4" class="ci-fill"/>
+            <rect x="17" y="18" width="14" height="10" rx="1" class="ci-chip"/>
+            <line x1="14" y1="8" x2="14" y2="12" class="ci-pins"/>
+            <line x1="24" y1="8" x2="24" y2="12" class="ci-pins"/>
+            <line x1="34" y1="8" x2="34" y2="12" class="ci-pins"/>
+            <line x1="14" y1="36" x2="14" y2="40" class="ci-pins"/>
+            <line x1="24" y1="36" x2="24" y2="40" class="ci-pins"/>
+            <line x1="34" y1="36" x2="34" y2="40" class="ci-pins"/>
+          </svg>
+        </div>
+        <h3>Arduino</h3>
+        <p>O Arduino lê o sinal do sensor e acompanha os botões.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true"><span></span></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 48 48" class="flow-icon-svg" aria-hidden="true">
+            <circle cx="24" cy="24" r="7" class="ci-ring"/>
+            <g class="ci-pins">
+              <line x1="24" y1="4" x2="24" y2="10"/>
+              <line x1="24" y1="38" x2="24" y2="44"/>
+              <line x1="4" y1="24" x2="10" y2="24"/>
+              <line x1="38" y1="24" x2="44" y2="24"/>
+              <line x1="11" y1="11" x2="15" y2="15"/>
+              <line x1="33" y1="33" x2="37" y2="37"/>
+              <line x1="11" y1="37" x2="15" y2="33"/>
+              <line x1="33" y1="15" x2="37" y2="11"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Processamento</h3>
+        <p>O programa calcula o BPM médio antes e depois da pergunta e compara os dois.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true"><span></span></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 48 48" class="flow-icon-svg" aria-hidden="true">
+            <line x1="8" y1="40" x2="40" y2="40" class="ci-pins"/>
+            <rect x="12" y="26" width="6" height="14" class="ci-band ci-band-3"/>
+            <rect x="21" y="18" width="6" height="22" class="ci-band ci-band-2"/>
+            <rect x="30" y="10" width="6" height="30" class="ci-band ci-band-1"/>
+          </svg>
+        </div>
+        <h3>Resultado</h3>
+        <p>O display OLED mostra as alterações observadas.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title reveal">Passo a passo do teste</h3>
+    <ol class="steps reveal">
+      <li><strong>Standby.</strong> Ao ligar, o aparelho fica desligado, com os LEDs apagados. Aperta-se START.</li>
+      <li><strong>Média 1 (base).</strong> O LED amarelo acende e a pessoa coloca o dedo no KY-039. O Arduino mede o BPM médio durante 15 segundos.</li>
+      <li><strong>Pergunta.</strong> O amarelo pisca 3 vezes e o display mostra "FAÇA A PERGUNTA".</li>
+      <li><strong>Média 2 (resposta).</strong> O Arduino mede o BPM médio por mais 15 segundos, escondendo o valor no display.</li>
+      <li><strong>Análise.</strong> Os 3 LEDs acendem com "ANALISANDO...". Depois fica só um: <strong>vermelho</strong> se a média 2 for maior que a média 1 por mais de 3 BPM (mentira), <strong>verde</strong> caso contrário (verdade).</li>
+    </ol>
+
+    <div class="notice reveal">
+      <strong>Observação importante:</strong> o sistema não consegue determinar com certeza se uma pessoa está mentindo. Alterações nos batimentos cardíacos também podem ocorrer por ansiedade, medo, nervosismo, esforço físico ou outras situações.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. COMPONENTES ============ -->
+<section class="section" id="componentes">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Componentes</h2>
+
+    <div class="card-grid reveal">
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/arduino-uno.webp" alt="Arduino Uno utilizado no projeto">
+        </div>
+        <h3>Arduino Uno</h3>
+        <p>Microcontrolador responsável por receber os dados do sensor e executar o programa.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/sensor-pulso.webp" alt="Sensor KY-039 com fios conectados">
+        </div>
+        <h3>Sensor de pulso KY-039</h3>
+        <p>Sensor infravermelho: o dedo fica entre um LED infravermelho e um fototransistor, que percebe a variação de luz a cada batimento e envia o sinal analógico ao Arduino.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img img-contain">
+          <img src="src/img/display-oled.webp" alt="Display OLED SSD1306 128x64 com pinos GND, VCC, SCL e SDA" loading="lazy">
+        </div>
+        <h3>Display OLED SSD1306</h3>
+        <p>Tela 128x64 ligada por I2C (SDA no A4, SCL no A5). Mostra o BPM, o tempo restante, as instruções e o resultado, sem depender do computador.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img img-contain">
+          <img src="src/img/botoes.webp" alt="Módulo com botões push button coloridos" loading="lazy">
+        </div>
+        <h3>2 Botões</h3>
+        <p><strong>START/STOP</strong> (D3) liga e desliga o teste; <strong>REINICIAR</strong> (D2) recomeça o teste do zero. Usam o resistor pull-up interno do Arduino.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/leds.webp" alt="LEDs de indicação (vermelho, amarelo e verde)">
+        </div>
+        <h3>3 LEDs</h3>
+        <p>Amarelo: teste em andamento. Verde: resultado "verdade". Vermelho: resultado "mentira".</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/protoboard.webp" alt="Protoboard usada para montagem do circuito">
+        </div>
+        <h3>Protoboard</h3>
+        <p>Placa de montagem usada para conectar os componentes sem solda.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/jumpers.webp" alt="Jumpers coloridos usados nas conexões">
+        </div>
+        <h3>Jumpers</h3>
+        <p>Fios usados para interligar o Arduino, o sensor, o display, os botões e a protoboard.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/resistores.webp" alt="Resistores usados no circuito">
+        </div>
+        <h3>Resistores</h3>
+        <p>Resistores de 220 Ω limitam a corrente e protegem os LEDs.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-img">
+          <img src="src/img/computador-componente.jpg" alt="Computador utilizado para programar o Arduino e visualizar os dados">
+        </div>
+        <h3>Computador</h3>
+        <p>Utilizado para programar o Arduino e visualizar os dados coletados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CUSTO DO PROJETO ============ -->
+<section class="section section-alt" id="custo">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Custo do Projeto</h2>
+    <p class="section-lead reveal">Valores estimados com base em lojas de eletrônica no Brasil. Os preços podem variar conforme a loja, a região e a marca de cada componente — pesquise antes de comprar.</p>
+
+    <div class="cost-total reveal">
+      <span class="cost-total-label">valor total estimado</span>
+      <span class="cost-total-value" id="costTotal">R$ 152<span class="cost-total-unit">,00</span></span>
+      <span class="cost-total-note">soma dos valores de cada linha da tabela</span>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table class="data-table" id="costTable">
+        <thead>
+          <tr><th>Componente</th><th>Qtd.</th><th>Valor estimado</th></tr>
+        </thead>
+        <tbody>
+          <tr data-valor="35"><td>Arduino Uno</td><td>1</td><td>R$ 35,00</td></tr>
+          <tr data-valor="40"><td>Sensor de pulso KY-039</td><td>1</td><td>R$ 40,00</td></tr>
+          <tr data-valor="35"><td>Display OLED</td><td>1</td><td>R$ 35,00</td></tr>
+          <tr data-valor="2"><td>Botões (push button)</td><td>2</td><td>R$ 2,00</td></tr>
+          <tr data-valor="20"><td>Protoboard 400/830 pontos</td><td>1</td><td>R$ 20,00</td></tr>
+          <tr data-valor="12"><td>Kit de jumpers (macho-macho)</td><td>1</td><td>R$ 12,00</td></tr>
+          <tr data-valor="3"><td>LEDs (vermelho, amarelo, verde)</td><td>3</td><td>R$ 3,00</td></tr>
+          <tr data-valor="5"><td>Resistores variados</td><td>5</td><td>R$ 5,00</td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="cost-table-total"><td colspan="2">Total estimado</td><td id="costTableTotal">R$ 152,00</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="cost-disclaimer reveal">O computador usado para programar não entra na conta. Muitos desses componentes já existem em kits de eletrônica escolares ou podem ser emprestados e reaproveitados, o que reduz o custo final.</p>
+  </div>
+</section>
+
+<!-- ============ 5. TECNOLOGIA ============ -->
+<section class="section section-alt" id="tecnologias">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Tecnologia Utilizada</h2>
+
+    <div class="tech-grid reveal">
+      <div class="tech-card">
+        <div class="tech-icon">
+          <svg viewBox="0 0 48 48" class="icon-svg" aria-hidden="true">
+            <rect x="10" y="10" width="28" height="28" rx="4" class="icon-square"/>
+            <line x1="16" y1="4" x2="16" y2="10" class="icon-pin"/>
+            <line x1="24" y1="4" x2="24" y2="10" class="icon-pin"/>
+            <line x1="32" y1="4" x2="32" y2="10" class="icon-pin"/>
+            <line x1="16" y1="38" x2="16" y2="44" class="icon-pin"/>
+            <line x1="24" y1="38" x2="24" y2="44" class="icon-pin"/>
+            <line x1="32" y1="38" x2="32" y2="44" class="icon-pin"/>
+            <text x="24" y="28" class="icon-text-sm">C++</text>
+          </svg>
+        </div>
+        <h3>Arduino / C++</h3>
+        <p>Linguagem baseada em C/C++ usada para programar o microcontrolador no Arduino IDE.</p>
+        <p class="why"><strong>Por que foi utilizada?</strong> É a linguagem do Arduino IDE, permite controlar sensores, display e botões, processar dados recebidos, é adequada para projetos de eletrônica e automação, e conta com muitas bibliotecas e exemplos.</p>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">
+          <svg viewBox="0 0 48 48" class="icon-svg" aria-hidden="true">
+            <rect x="8" y="12" width="32" height="24" rx="3" class="icon-square"/>
+            <path d="M13,26 L19,26 L22,19 L26,31 L29,26 L35,26" class="sensor-line"/>
+          </svg>
+        </div>
+        <h3>Sensor KY-039 e display OLED</h3>
+        <p>O KY-039 entrega um sinal analógico lido pelo conversor do Arduino; o resultado é exibido no display OLED com as bibliotecas Adafruit SSD1306 e Adafruit GFX.</p>
+        <p class="why"><strong>Por que foram utilizados?</strong> O KY-039 é um sensor de pulso barato e fácil de ligar ao Arduino, e o display OLED permite mostrar o resultado sem depender do computador.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. POR QUE ESSA TECNOLOGIA ============ -->
+<section class="section" id="por-que">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Por que escolhemos essa tecnologia?</h2>
+    <p class="section-lead reveal">O Arduino foi escolhido por ser a ferramenta ideal para controlar o hardware e receber os dados do sensor KY-039.</p>
+
+    <div class="reasons-grid reveal">
+      <div class="reason">
+        <h3>Arduino / C++</h3>
+        <p>Para controlar o sensor, o display OLED e os botões, e processar os dados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. CÓDIGO DO ARDUINO ============ -->
+<section class="section section-alt" id="codigo">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Código do Projeto</h2>
+    <p class="section-lead reveal">Código real do Arduino: leitura do KY-039, cálculo do BPM, controle dos botões, LEDs e exibição no display OLED. O arquivo completo também está disponível para <a href="detector_mentiras.ino" download>download (.ino)</a>.</p>
+
+    <div class="code-window reveal">
+      <div class="code-window-bar">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span class="code-window-title">detector_mentiras.ino</span>
+      </div>
+      <pre class="code-block" id="codeBlock"><code>// DETECTOR DE MENTIRAS (demonstracao) - versao 9 (START/STOP + REINICIAR)
+// Arduino Uno + KY-039 + 3 LEDs + OLED SSD1306 128x64 (I2C) + 2 botoes
+//
+// PINOS
+//   Sensor KY-039 ......... A0
+//   LED verde ............. D8   (resistor 220 ohm)
+//   LED amarelo ........... D9   (resistor 220 ohm)
+//   LED vermelho .......... D10  (resistor 220 ohm)
+//   Botao REINICIAR ....... D2 e GND (pull-up interno, sem resistor)
+//   Botao START/STOP ...... D3 e GND (pull-up interno, sem resistor)
+//   OLED SDA .............. A4
+//   OLED SCL .............. A5
+//
+// FUNCIONAMENTO
+//   Ao ligar o Arduino fica DESLIGADO (standby): LEDs apagados.
+//   START/STOP (D3):
+//        desligado -&gt; inicia o teste
+//        teste rodando (ou resultado na tela) -&gt; desliga
+//   REINICIAR (D2): recomeca o teste do zero (so com o teste ligado)
+//
+//   Teste: amarelo acende -&gt; media 1 (10 s) -&gt; amarelo pisca 3x
+//   -&gt; &quot;FACA A PERGUNTA&quot; -&gt; media 2 (15 s) -&gt; 3 LEDs + &quot;ANALISANDO...&quot;
+//   -&gt; fica so o LED do resultado:
+//        media 2 &gt; media 1  = VERMELHO (mentira)
+//        media 2 &lt;= media 1 = VERDE (verdade)
+//
+// BIBLIOTECAS: &quot;Adafruit SSD1306&quot; e &quot;Adafruit GFX Library&quot;
+//
+// SERIAL (9600 baud)
+//   MODO_PLOTTER = true  -&gt; abra o Serial Plotter (grafico do pulso)
+//   MODO_PLOTTER = false -&gt; abra o Serial Monitor (textos)
+
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+
+const bool MODO_PLOTTER = true;  // true = Serial Plotter; false = Serial Monitor
+
+// ---------- Pinos ----------
+const int PIN_SENSOR   = A0;
+const int LED_VERDE    = 8;
+const int LED_AMARELO  = 9;
+const int LED_VERMELHO = 10;
+const int PIN_REINICIAR = 2;
+const int PIN_START     = 3;
+
+// ---------- OLED ----------
+const uint8_t OLED_ENDERECO = 0x3C;   // se nao acender, tente 0x3D
+Adafruit_SSD1306 display(128, 64, &amp;Wire, -1);
+bool temTela = false;
+const bool TELA_APAGADA_NO_STANDBY = false; // true = tela totalmente apagada quando desligado
+
+// ---------- Ajustes ----------
+const unsigned long DURACAO_MEDIA1_MS = 15000;
+const unsigned long DURACAO_MEDIA2_MS = 15000;
+const unsigned long TEMPO_SUSPENSE_MS = 3000;
+const float MARGEM_BPM = 3;            // 0 = qualquer aumento vira mentira (teste 1 a 3)
+const int   MIN_BATIDAS = 6;
+const bool  MOSTRAR_BPM_FASE2 = false; // false = esconde o BPM durante a media 2 (suspense)
+const bool  DIAGNOSTICO = true;        // (modo Monitor) mostra leitura/amp/batidas a cada 1 s
+
+// ---------- Ajustes do sinal ----------
+const unsigned long PERIODO_US = 5000;        // 200 Hz
+const unsigned long AQUECIMENTO_MS = 1500;
+const int   OVERSAMPLE = 8;
+const float LIMIAR_MIN = 1.5;
+const float SPIKE_MIN = 120.0;
+const unsigned long BLOQUEIO_MS = 1000;
+const unsigned long REFRATARIO_MS = 500;   // evita dupla contagem da mesma batida
+const unsigned long REARME_FORCADO_MS = 1800;
+const float LIMIAR_FATOR = 0.55;
+const float DESCIDA_FATOR = 0.55;
+const float MIN_AMPLITUDE_BATIDA = 3.0;
+const unsigned long SEM_DEDO_MS = 5000;
+
+// ---------- Estado ----------
+enum Fase { ESPERA, MEDINDO_1, MEDINDO_2, FIM };
+Fase fase = ESPERA;
+
+float filtro = 0, base = 0;
+float ampMedia = 0, picoCiclo = 0;
+bool armado = true;
+bool candidatoBatida = false;
+float picoCandidato = 0;
+unsigned long tCandidato = 0;
+unsigned long ultimaAmostra = 0, tLiberar = 0, tDiag = 0, tUltimaTela = 0;
+unsigned long tUltimoPico = 0, tUltimaBatidaReal = 0;
+int contadorPlot = 0;
+
+const int MAX_INTERVALOS = 50;
+uint16_t intervalos[MAX_INTERVALOS];
+int n = 0;
+unsigned long ultimaBatida = 0;
+unsigned long inicioJanela = 0;   // 0 = ainda nao comecou
+float media1 = 0;
+float bpmAtual = 0;
+bool batidaPar = false;
+
+// ---------- Botoes ----------
+// indice 0 = REINICIAR, indice 1 = START/STOP
+// (sem struct: a IDE do Arduino cria prototipos automaticos que quebram com struct)
+const int PINOS_BOTOES[2] = { PIN_REINICIAR, PIN_START };
+bool botaoAnterior[2] = { HIGH, HIGH };
+unsigned long botaoTempo[2] = { 0, 0 };
+
+// =====================================================
+//                    SERIAL
+// =====================================================
+void texto(const __FlashStringHelper* s) {
+  if (!MODO_PLOTTER) Serial.println(s);
+}
+
+void textoNum(const __FlashStringHelper* s, float v, int casas, const __FlashStringHelper* fim) {
+  if (MODO_PLOTTER) return;
+  Serial.print(s);
+  Serial.print(v, casas);
+  Serial.println(fim);
+}
+
+void plota(float sinal, float limiar, unsigned long agora) {
+  if (!MODO_PLOTTER) return;
+
+  // Serial Plotter: cada linha = uma amostra.
+  // Series: Sinal, Limite, Batida
+  if (++contadorPlot &lt; 4) return;   // ~50 Hz
+  contadorPlot = 0;
+
+  float s = constrain(sinal, -40.0f, 40.0f);
+  float l = constrain(limiar, 0.0f, 40.0f);
+  int batida = (agora - tUltimaBatidaReal &lt; 120) ? 10 : 0;
+
+  Serial.print(s, 2);
+  Serial.print(&#x27;,&#x27;);
+  Serial.print(l, 2);
+  Serial.print(&#x27;,&#x27;);
+  Serial.println(batida);
+}
+
+// =====================================================
+//                    BOTOES
+// =====================================================
+bool pressionado(int i) {
+  bool l = digitalRead(PINOS_BOTOES[i]);
+  if (l != botaoAnterior[i] &amp;&amp; millis() - botaoTempo[i] &gt; 50) {
+    botaoTempo[i] = millis();
+    botaoAnterior[i] = l;
+    if (l == LOW) return true;
+  }
+  return false;
+}
+
+// 0 = nada, 1 = REINICIAR, 2 = START/STOP
+int leBotoes() {
+  bool s = pressionado(1);   // START/STOP
+  bool r = pressionado(0);   // REINICIAR
+  if (s) return 2;
+  if (r) return 1;
+  return 0;
+}
+
+// Espera ms milissegundos; devolve o botao apertado (0 = nenhum)
+int esperaOuBotao(unsigned long ms) {
+  unsigned long ini = millis();
+  while (millis() - ini &lt; ms) {
+    int b = leBotoes();
+    if (b) return b;
+    delay(5);
+  }
+  return 0;
+}
+
+// =====================================================
+//                    OLED
+// =====================================================
+void centralizaF(const __FlashStringHelper* txt, int y, int tam) {
+  int16_t x1, y1; uint16_t w, h;
+  display.setTextSize(tam);
+  display.getTextBounds(txt, 0, y, &amp;x1, &amp;y1, &amp;w, &amp;h);
+  display.setCursor((128 - w) / 2, y);
+  display.print(txt);
+}
+
+void centraliza(const char* txt, int y, int tam) {
+  int16_t x1, y1; uint16_t w, h;
+  display.setTextSize(tam);
+  display.getTextBounds(txt, 0, y, &amp;x1, &amp;y1, &amp;w, &amp;h);
+  display.setCursor((128 - w) / 2, y);
+  display.print(txt);
+}
+
+void coracao(int x, int y, bool cheio) {
+  if (cheio) {
+    display.fillCircle(x - 3, y + 2, 3, WHITE);
+    display.fillCircle(x + 3, y + 2, 3, WHITE);
+    display.fillTriangle(x - 6, y + 3, x + 6, y + 3, x, y + 10, WHITE);
+  } else {
+    display.drawCircle(x - 3, y + 2, 3, WHITE);
+    display.drawCircle(x + 3, y + 2, 3, WHITE);
+    display.drawTriangle(x - 6, y + 3, x + 6, y + 3, x, y + 10, WHITE);
+  }
+}
+
+void telaLigada(bool ligada) {
+  if (!temTela) return;
+  display.ssd1306_command(ligada ? SSD1306_DISPLAYON : SSD1306_DISPLAYOFF);
+}
+
+void telaEspera() {
+  if (!temTela) return;
+  if (TELA_APAGADA_NO_STANDBY) {
+    display.clearDisplay();
+    display.display();
+    telaLigada(false);
+    return;
+  }
+  telaLigada(true);
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  centralizaF(F(&quot;DETECTOR&quot;), 6, 2);
+  centralizaF(F(&quot;de mentiras&quot;), 26, 1);
+  centralizaF(F(&quot;DESLIGADO&quot;), 40, 1);
+  centralizaF(F(&quot;Aperte START&quot;), 52, 1);
+  display.display();
+}
+
+void telaAbertura() {
+  if (!temTela) return;
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  centralizaF(F(&quot;DETECTOR&quot;), 8, 2);
+  centralizaF(F(&quot;de mentiras&quot;), 30, 1);
+  centralizaF(F(&quot;Feira de Ciencias&quot;), 48, 1);
+  display.display();
+}
+
+void desenhaMedindo() {
+  if (!temTela) return;
+  unsigned long agora = millis();
+  unsigned long dur = (fase == MEDINDO_1) ? DURACAO_MEDIA1_MS : DURACAO_MEDIA2_MS;
+  bool aoVivo = (fase == MEDINDO_1) || MOSTRAR_BPM_FASE2;
+
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  if (fase == MEDINDO_1) display.print(F(&quot;1) MEDIA BASE&quot;));
+  else                   display.print(F(&quot;2) RESPOSTA&quot;));
+
+  char buf[12];
+
+  if (inicioJanela != 0) {
+    unsigned long dec = agora - inicioJanela;
+    int rest = (dec &gt;= dur) ? 0 : (int)((dur - dec) / 1000 + 1);
+    sprintf(buf, &quot;%ds&quot;, rest);
+    display.setTextSize(1);
+    display.setCursor(128 - 6 * strlen(buf), 0);
+    display.print(buf);
+  }
+
+  if (ultimaBatida != 0) coracao(96, 0, batidaPar);
+
+  if (inicioJanela == 0) {
+    centralizaF(F(&quot;Coloque o dedo&quot;), 24, 1);
+    centralizaF(F(&quot;no sensor&quot;), 36, 1);
+  } else if (aoVivo &amp;&amp; bpmAtual &gt; 0) {
+    sprintf(buf, &quot;%d&quot;, (int)(bpmAtual + 0.5));
+    centraliza(buf, 16, 3);
+    centralizaF(F(&quot;BPM&quot;), 42, 1);
+  } else {
+    centralizaF(F(&quot;Medindo...&quot;), 22, 2);
+  }
+
+  if (inicioJanela != 0) {
+    unsigned long dec = agora - inicioJanela;
+    int w = (dec &gt;= dur) ? 124 : (int)(124UL * dec / dur);
+    display.drawRect(0, 54, 128, 10, WHITE);
+    display.fillRect(2, 56, w, 6, WHITE);
+  }
+  display.display();
+}
+
+void telaPergunta() {
+  if (!temTela) return;
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  centralizaF(F(&quot;FACA A&quot;), 4, 2);
+  centralizaF(F(&quot;PERGUNTA!&quot;), 24, 2);
+  char buf[24];
+  sprintf(buf, &quot;Base: %d BPM&quot;, (int)(media1 + 0.5));
+  centraliza(buf, 52, 1);
+  display.display();
+}
+
+void telaAnalisando(int pontos) {
+  if (!temTela) return;
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  centralizaF(F(&quot;ANALISANDO&quot;), 14, 2);
+  display.setTextSize(2);
+  display.setCursor(40, 38);
+  for (int i = 0; i &lt; pontos; i++) display.print(&#x27;.&#x27;);
+  display.display();
+}
+
+void telaResultado(bool mentira, float m1, float m2) {
+  if (!temTela) return;
+  display.clearDisplay();
+  if (mentira) {
+    display.fillRect(0, 0, 128, 64, WHITE);
+    display.setTextColor(BLACK);
+  } else {
+    display.setTextColor(WHITE);
+  }
+  if (mentira) centralizaF(F(&quot;MENTIRA!&quot;), 6, 2);
+  else         centralizaF(F(&quot;VERDADE&quot;), 6, 2);
+
+  char buf[24];
+  sprintf(buf, &quot;Base:  %d BPM&quot;, (int)(m1 + 0.5));
+  centraliza(buf, 30, 1);
+  sprintf(buf, &quot;Agora: %d BPM&quot;, (int)(m2 + 0.5));
+  centraliza(buf, 42, 1);
+  centralizaF(F(&quot;Reiniciar = novo&quot;), 54, 1);
+  display.display();
+}
+
+// Atualiza a tela so em momentos &quot;seguros&quot;, para nao atrasar a leitura de uma batida
+void atualizaTela(unsigned long agora) {
+  if (!temTela || fase == FIM || fase == ESPERA) return;
+  if (agora - tUltimaTela &lt; 400) return;
+  unsigned long dp = agora - tUltimoPico;
+  bool seguro = (dp &gt; 80 &amp;&amp; dp &lt; 250) || dp &gt; 1500;
+  if (!seguro) return;
+  tUltimaTela = agora;
+  desenhaMedindo();
+}
+
+// =====================================================
+//                    SETUP / LOOP
+// =====================================================
+void setup() {
+  Serial.begin(9600);
+  delay(200);
+  pinMode(LED_VERDE, OUTPUT);
+  pinMode(LED_AMARELO, OUTPUT);
+  pinMode(LED_VERMELHO, OUTPUT);
+  pinMode(PIN_REINICIAR, INPUT_PULLUP);
+  pinMode(PIN_START, INPUT_PULLUP);
+
+  temTela = display.begin(SSD1306_SWITCHCAPVCC, OLED_ENDERECO);
+  if (!temTela) {
+    texto(F(&quot;OLED nao encontrado: confira SDA/SCL e o endereco (0x3C ou 0x3D).&quot;));
+  }
+
+  texto(F(&quot;=== DETECTOR DE MENTIRAS ===&quot;));
+  telaAbertura();
+  delay(1500);
+
+  desliga();   // comeca desligado, esperando o botao START
+}
+
+void loop() {
+  int b = leBotoes();
+  if (b) { trataAcao(b); return; }
+
+  if (fase == ESPERA || fase == FIM) return;
+
+  unsigned long t = micros();
+  if (t - ultimaAmostra &lt; PERIODO_US) return;
+  ultimaAmostra += PERIODO_US;
+  if (t - ultimaAmostra &gt; 20000) ultimaAmostra = t;
+
+  // ----- Leitura com sobreamostragem -----
+  long soma = 0;
+  for (int i = 0; i &lt; OVERSAMPLE; i++) soma += analogRead(PIN_SENSOR);
+  float leitura = (float)soma / OVERSAMPLE;
+
+  // ----- Filtros -----
+  filtro += 0.25 * (leitura - filtro);
+  base   += 0.01 * (filtro - base);
+  float sinal = filtro - base;
+
+  unsigned long agora = millis();
+
+  // ----- Diagnostico (modo Monitor) -----
+  if (DIAGNOSTICO &amp;&amp; !MODO_PLOTTER &amp;&amp; agora - tDiag &gt;= 1000) {
+    tDiag = agora;
+    Serial.print(F(&quot;[leitura=&quot;));
+    Serial.print(leitura, 0);
+    Serial.print(F(&quot; amp=&quot;));
+    Serial.print(ampMedia, 1);
+    Serial.print(F(&quot; batidas=&quot;));
+    Serial.print(n);
+    Serial.println(F(&quot;]&quot;));
+  }
+
+  // ----- Mudanca brusca: recentraliza a base e espera um pouco -----
+  float limiteSpike = max(SPIKE_MIN, 5.0f * ampMedia);
+  if (fabs(sinal) &gt; limiteSpike) {
+    tLiberar = agora + BLOQUEIO_MS;
+    ultimaBatida = 0;
+  }
+  if (agora &lt; tLiberar) {
+    base = filtro;
+    ampMedia = 0;
+    picoCiclo = 0;
+    armado = true;
+    plota(0, LIMIAR_MIN, agora);
+    return;
+  }
+
+  // ----- Deteccao robusta da batida -----
+  // Exige uma onda completa: subida -&gt; pico -&gt; descida.
+  // Isso evita que pequenas oscilações do KY-039 sejam contadas como batimentos.
+  float limiar = max(LIMIAR_MIN, LIMIAR_FATOR * ampMedia);
+
+  if (!candidatoBatida) {
+    ampMedia *= 0.9997;
+
+    if (sinal &gt; limiar &amp;&amp;
+        (tUltimoPico == 0 || (agora - tUltimoPico) &gt; REFRATARIO_MS)) {
+
+      candidatoBatida = true;
+      picoCandidato = sinal;
+      picoCiclo = sinal;
+      tCandidato = agora;
+    }
+  } else {
+    // Guarda o verdadeiro pico da onda.
+    if (sinal &gt; picoCandidato) {
+      picoCandidato = sinal;
+      picoCiclo = sinal;
+    }
+
+    // Só confirma quando a onda começa a descer.
+    float limiarDescida = max(LIMIAR_MIN * 0.70,
+                              DESCIDA_FATOR * limiar);
+
+    bool terminouOnda = (sinal &lt; limiarDescida);
+    bool demorouDemais = (agora - tCandidato) &gt; REARME_FORCADO_MS;
+
+    if (terminouOnda || demorouDemais) {
+      float pico = picoCandidato;
+
+      if (pico &gt;= MIN_AMPLITUDE_BATIDA) {
+        // A amplitude de referência aprende apenas ondas confirmadas.
+        ampMedia = (ampMedia == 0)
+                     ? pico
+                     : (0.80 * ampMedia + 0.20 * pico);
+
+        if (tUltimoPico == 0 ||
+            (agora - tUltimoPico) &gt;= REFRATARIO_MS) {
+          tUltimoPico = agora;
+          registraBatida(agora);
+        }
+      }
+
+      candidatoBatida = false;
+      picoCandidato = 0;
+      tCandidato = 0;
+      armado = true;
+    }
+  }
+
+  plota(sinal, limiar, agora);
+  atualizaTela(agora);
+
+  // ----- Dedo saiu (sem batidas por 5 s): recomeca a janela -----
+  if (inicioJanela != 0 &amp;&amp; (agora - tUltimaBatidaReal) &gt; SEM_DEDO_MS) {
+    texto(F(&quot;Sem batidas, reiniciando a medicao...&quot;));
+    iniciaMedicao();
+  }
+
+  // ----- Fim da janela (espera ter batidas suficientes) -----
+  unsigned long duracao = (fase == MEDINDO_1) ? DURACAO_MEDIA1_MS : DURACAO_MEDIA2_MS;
+  if (inicioJanela != 0 &amp;&amp; (agora - inicioJanela) &gt;= duracao &amp;&amp; n &gt;= MIN_BATIDAS) {
+    finalizaMedicao();
+  }
+}
+
+// =====================================================
+//                    CONTROLE (START / STOP / REINICIAR)
+// =====================================================
+// acao: 1 = REINICIAR, 2 = START/STOP
+void trataAcao(int acao) {
+  if (acao == 2) {
+    if (fase == ESPERA) reiniciaTudo();   // estava desligado: liga
+    else                desliga();        // estava ligado: desliga
+  } else if (acao == 1) {
+    if (fase != ESPERA) reiniciaTudo();   // reiniciar so vale com o teste ligado
+  }
+}
+
+// Desliga o teste: LEDs apagados, sensor parado, aguarda START
+void desliga() {
+  apagaLeds();
+  fase = ESPERA;
+  iniciaMedicao();
+  texto(F(&quot;--- DESLIGADO. Aperte START ---&quot;));
+  telaEspera();
+}
+
+// Liga/recomeca o teste do zero
+void reiniciaTudo() {
+  telaLigada(true);
+  apagaLeds();
+  digitalWrite(LED_AMARELO, HIGH);
+
+  // Recalibra a leitura inicial do sensor
+  long soma = 0;
+  for (int i = 0; i &lt; 30; i++) { soma += analogRead(PIN_SENSOR); delay(2); }
+  filtro = base = soma / 30.0;
+
+  fase = MEDINDO_1;
+  media1 = 0;
+  iniciaMedicao();
+  ampMedia = 0;
+  picoCiclo = 0;
+  armado = true;
+  tLiberar = millis() + AQUECIMENTO_MS;
+  tUltimoPico = 0;
+  tUltimaBatidaReal = 0;
+  tUltimaTela = millis();
+  ultimaAmostra = micros();
+
+  texto(F(&quot;--- Teste iniciado ---&quot;));
+  texto(F(&quot;Coloque o dedo no sensor (parado, pressao leve).&quot;));
+  texto(F(&quot;Medindo a media 1 (10 s apos a primeira batida)...&quot;));
+  desenhaMedindo();
+}
+
+// =====================================================
+//                    MEDICAO
+// =====================================================
+void iniciaMedicao() {
+  n = 0;
+  ultimaBatida = 0;
+  inicioJanela = 0;
+  bpmAtual = 0;
+  candidatoBatida = false;
+  picoCandidato = 0;
+  tCandidato = 0;
+}
+
+void registraBatida(unsigned long agora) {
+  if (inicioJanela == 0) inicioJanela = agora;
+  tUltimaBatidaReal = agora;
+  batidaPar = !batidaPar;
+
+  if (ultimaBatida != 0) {
+    unsigned long iv = agora - ultimaBatida;
+    if (iv &gt;= 500 &amp;&amp; iv &lt;= 1500) {              // 40 a 120 BPM; foco em repouso
+      if (n &lt; MAX_INTERVALOS) intervalos[n++] = (uint16_t)iv;
+      float bpm = 60000.0 / iv;
+
+      // Mostra uma estimativa suavizada, mas nunca deixa um pico isolado
+      // dominar o valor exibido.
+      bpmAtual = (bpmAtual == 0) ? bpm : (0.85 * bpmAtual + 0.15 * bpm);
+
+      // Rejeita valores fisiologicamente improváveis para o modo de repouso.
+      if (bpmAtual &lt; 40) bpmAtual = 40;
+      if (bpmAtual &gt; 120) bpmAtual = 120;
+
+      textoNum(F(&quot;BPM: &quot;), bpmAtual, 1, F(&quot;&quot;));
+    }
+  }
+  ultimaBatida = agora;
+}
+
+// Media dos intervalos, descartando os que fogem da mediana
+float calculaMediaBpm() {
+  uint16_t ord[MAX_INTERVALOS];
+  for (int i = 0; i &lt; n; i++) ord[i] = intervalos[i];
+  for (int i = 1; i &lt; n; i++) {
+    uint16_t v = ord[i];
+    int j = i - 1;
+    while (j &gt;= 0 &amp;&amp; ord[j] &gt; v) { ord[j + 1] = ord[j]; j--; }
+    ord[j + 1] = v;
+  }
+  float mediana = (n % 2) ? ord[n / 2] : (ord[n / 2 - 1] + ord[n / 2]) / 2.0;
+
+  float soma = 0;
+  int ok = 0;
+  for (int i = 0; i &lt; n; i++) {
+    if (intervalos[i] &gt; mediana * 0.75 &amp;&amp; intervalos[i] &lt; mediana * 1.25) {
+      soma += intervalos[i];
+      ok++;
+    }
+  }
+  if (ok &lt; 3) return 0;
+
+  float bpmFinal = 60000.0 / (soma / ok);
+
+  // Não força o resultado para 80–100 BPM.
+  // Se o sensor realmente detectar outro valor, ele deve aparecer.
+  return bpmFinal;
+}
+
+void finalizaMedicao() {
+  float bpm = calculaMediaBpm();
+
+  if (bpm == 0) {
+    texto(F(&quot;Batidas irregulares, reiniciando a medicao...&quot;));
+    iniciaMedicao();
+    return;
+  }
+
+  if (fase == MEDINDO_1) {
+    media1 = bpm;
+    textoNum(F(&quot;&gt;&gt;&gt; MEDIA 1: &quot;), media1, 1, F(&quot; BPM&quot;));
+    texto(F(&quot;Faca a pergunta! Medindo a media 2 (15 s)...&quot;));
+
+    telaPergunta();
+    int a = piscaAmarelo3x();
+    if (a) { trataAcao(a); return; }
+
+    fase = MEDINDO_2;
+    iniciaMedicao();
+    ampMedia = 0;
+    armado = true;
+    tLiberar = millis() + 500;
+    tUltimaTela = 0;
+    ultimaAmostra = micros();
+    desenhaMedindo();
+  }
+  else {
+    textoNum(F(&quot;&gt;&gt;&gt; MEDIA 2: &quot;), bpm, 1, F(&quot; BPM&quot;));
+
+    // Suspense: 3 LEDs ligados antes do resultado
+    digitalWrite(LED_VERDE, HIGH);
+    digitalWrite(LED_AMARELO, HIGH);
+    digitalWrite(LED_VERMELHO, HIGH);
+    int a = suspense();
+    if (a) { trataAcao(a); return; }
+    apagaLeds();
+
+    bool mentira = (bpm &gt; media1 + MARGEM_BPM);
+    if (mentira) {
+      digitalWrite(LED_VERMELHO, HIGH);
+      texto(F(&quot;RESULTADO: MENTIRA (vermelho)&quot;));
+    } else {
+      digitalWrite(LED_VERDE, HIGH);
+      texto(F(&quot;RESULTADO: VERDADE (verde)&quot;));
+    }
+    telaResultado(mentira, media1, bpm);
+    fase = FIM;
+  }
+}
+
+// =====================================================
+//                    LEDS / EFEITOS
+// =====================================================
+// Devolve o botao apertado durante o efeito (0 = nenhum)
+int piscaAmarelo3x() {
+  int a;
+  for (int i = 0; i &lt; 3; i++) {
+    digitalWrite(LED_AMARELO, LOW);
+    a = esperaOuBotao(300);
+    if (a) return a;
+    digitalWrite(LED_AMARELO, HIGH);
+    a = esperaOuBotao(300);
+    if (a) return a;
+  }
+  digitalWrite(LED_AMARELO, LOW);
+  return 0;
+}
+
+int suspense() {
+  unsigned long ini = millis();
+  int k = 0;
+  while (millis() - ini &lt; TEMPO_SUSPENSE_MS) {
+    telaAnalisando(k % 4);
+    k++;
+    int a = esperaOuBotao(400);
+    if (a) return a;
+  }
+  return 0;
+}
+
+void apagaLeds() {
+  digitalWrite(LED_VERDE, LOW);
+  digitalWrite(LED_AMARELO, LOW);
+  digitalWrite(LED_VERMELHO, LOW);
+}
+</code></pre>
+      <button class="btn btn-ghost code-toggle" id="codeToggle" aria-expanded="false">Mostrar código completo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESSO / FOTOS ============ -->
+<section class="section" id="processo">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Montagem do Projeto</h2>
+    <p class="section-lead reveal">Fotos e vídeos do desenvolvimento, da primeira montagem até a versão final.</p>
+    <div class="gallery-grid reveal">
+      <figure class="gallery-item">
+        <img src="src//img/computador.jpg" alt="Computador com o código aberto e fios da protoboard sobre a mesa" loading="lazy">
+        <figcaption>Código aberto e fios da protoboard</figcaption>
+      </figure>
+      <figure class="gallery-item gallery-media">
+        <video controls muted playsinline preload="metadata" poster="img/processo-montagem-fios.jpg" aria-label="Vídeo da montagem dos fios do circuito com o Arduino">
+          <source src="src/img/processo-montagem-fios.mp4" type="video/mp4">
+          Seu navegador não suporta vídeo.
+        </video>
+        <figcaption>Montagem dos fios do circuito com o Arduino</figcaption>
+      </figure>
+      <figure class="gallery-item gallery-media">
+        <video controls muted playsinline preload="metadata" poster="img/processo-teste-display.jpg" aria-label="Vídeo do teste do display OLED com o circuito na protoboard">
+          <source src="src/img/processo-teste-display.mp4" type="video/mp4">
+          Seu navegador não suporta vídeo.
+        </video>
+        <figcaption>Primeiro teste do display OLED e do botão START</figcaption>
+      </figure>
+      <figure class="gallery-item gallery-media">
+        <img src="src/img/processo-caixa-pintura.jpg" alt="Caixa do projeto sendo pintada de preto, já com display, LEDs e botões encaixados" loading="lazy">
+        <figcaption>Pintura da caixa com o display, os LEDs e os botões encaixados</figcaption>
+      </figure>
+      <figure class="gallery-item gallery-media">
+        <img src="src/img/processo-caixa-pronta.jpg" alt="Colega mostrando a caixa preta do detector com display OLED, LEDs e botões" loading="lazy">
+        <figcaption>Caixa do detector quase pronta</figcaption>
+      </figure>
+      <!-- PARA ADICIONAR MAIS: copie um bloco <figure class="gallery-item gallery-media"> acima e troque o arquivo e a legenda -->
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. LIMITAÇÕES ============ -->
+<section class="section section-alt" id="limitacoes">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Limitações</h2>
+
+    <ul class="limit-list reveal">
+      <li>O projeto é experimental.</li>
+      <li>A frequência cardíaca não determina sozinha se alguém está mentindo.</li>
+      <li>A ansiedade pode alterar os batimentos.</li>
+      <li>O medo pode alterar os batimentos.</li>
+      <li>O nervosismo pode alterar os batimentos.</li>
+      <li>O projeto não é um polígrafo profissional: usa só o pulso, enquanto os profissionais medem também respiração e suor.</li>
+      <li>O resultado compara apenas duas médias de BPM (antes e depois da pergunta), com margem de 3 BPM — por isso é uma demonstração, não uma prova.</li>
+      <li>O KY-039 é sensível a movimento, luz ambiente e à pressão do dedo.</li>
+    </ul>
+
+    <div class="faq-box reveal">
+      <h3>O nosso detector realmente detecta mentiras?</h3>
+      <p>Não exatamente. O projeto detecta alterações fisiológicas que podem ocorrer durante uma situação de estresse ou nervosismo. A interpretação dessas alterações não permite afirmar, sozinha, que uma pessoa está mentindo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. CONCLUSÃO ============ -->
+<section class="section" id="conclusao">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Conclusão</h2>
+    <p class="section-lead reveal">Ao longo do desenvolvimento deste projeto, aprendemos e aplicamos conhecimentos de:</p>
+
+    <div class="tags reveal">
+      <span>Programação</span><span>C++</span><span>Arduino</span><span>Eletrônica</span>
+      <span>Sensores</span><span>Display OLED</span><span>Dados reais</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AGRADECIMENTOS ============ -->
+<section class="section section-alt" id="agradecimentos">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Agradecimentos</h2>
+    <p class="section-lead reveal">Este projeto não foi feito sozinho. Deixo aqui o meu muito obrigado a todos que ajudaram a transformar uma ideia em um aparelho de verdade.</p>
+
+    <div class="thanks-grid reveal">
+      
+      <div class="fact">
+        <h3>Ao professor Flakilin e Rafaela</h3>
+        <p>Pelas orientações, pela paciência e por ensinarem a testar, errar, corrigir e tentar de novo.</p>
+      </div>
+      <div class="fact">
+        <h3>À minha família</h3>
+        <p>Pelo apoio que me deram enquanto eu fazia o projeto.</p>
+      </div>
+      <div class="fact">
+        <h3>Aos colegas</h3>
+        <p>obrigado as todos que me ajudaram a desenvolver esse projeto, todos que testaram e brincaram com ele.</p>
+        <p>queria dar um ênfase para 2 alunos que me ajudaram bastante nesse projeto, que foram... a Giovannam e o Jhonatam. cada um deles
+          teveram a sua contibruição, mas no final de tudo eu queimei os dois com o ferro de solda.
+        </p>
+      </div>
+      
+      <div class="fact">
+        <h3>A você que prestou a atenção em mim</h3>
+        <p>Obrigado por conhecer o meu projeto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13. SOBRE O DESENVOLVEDOR ============ -->
+<section class="section" id="sobre-mim">
+  <div class="section-inner">
+    <p class="eyebrow reveal"></p>
+    <h2 class="section-title reveal">Sobre Mim</h2>
+
+    <div class="dev-card reveal">
+      <div class="dev-photo"><img src="src/img/eu1.jpeg" alt="Foto de João Emanuel"></div>
+      <div class="dev-info">
+        <h3>João Emanuel</h3>
+        <p class="dev-meta">16 anos · Escola Dino Ambrósio Pereira · Turma: 2º ano EMTI</p>
+        <p class="dev-bio">Sou João Emanuel, estudante do ensino médio e apaixonado por tecnologia e programação. Tenho interesse em aprender cada vez mais sobre informática, desenvolvimento de sites, Arduino e novas tecnologias. Gosto de transformar ideias em projetos práticos e criativos, sempre buscando aprender algo novo e evoluir nos meus conhecimentos.</p>
+        <p class="dev-quote">"Não preciso saber tudo; só preciso ter coragem para aprender e continuar tentando."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ 16. RODAPÉ ============ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="nav-brand-pulse" aria-hidden="true"></span>
+      <div>
+        <h3>Detector de Mentiras com Arduino</h3>
+        <p>Projeto desenvolvido para a feira de informática — 2026.</p>
+        <p>Escola Dino Ambrósio Pereira</p>
+        <p>João Emanuel</p>
+      </div>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/joaoemanueldaveigaalves-maker" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://instagram.com/joaoemanuel.xy" target="_blank" rel="noopener">Instagram</a>
+      <a href="#top">Voltar ao topo</a>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Voltar ao topo">↑</button>
+
+<script src="src/script.js"></script>
+</body>
+</html>
