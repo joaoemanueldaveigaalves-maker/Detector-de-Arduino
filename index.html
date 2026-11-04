@@ -464,36 +464,6 @@
         <span class="code-window-title">detector_mentiras.ino</span>
       </div>
       <pre class="code-block" id="codeBlock"><code>// DETECTOR DE MENTIRAS (demonstracao) - versao 9 (START/STOP + REINICIAR)
-// Arduino Uno + KY-039 + 3 LEDs + OLED SSD1306 128x64 (I2C) + 2 botoes
-//
-// PINOS
-//   Sensor KY-039 ......... A0
-//   LED verde ............. D8   (resistor 220 ohm)
-//   LED amarelo ........... D9   (resistor 220 ohm)
-//   LED vermelho .......... D10  (resistor 220 ohm)
-//   Botao REINICIAR ....... D2 e GND (pull-up interno, sem resistor)
-//   Botao START/STOP ...... D3 e GND (pull-up interno, sem resistor)
-//   OLED SDA .............. A4
-//   OLED SCL .............. A5
-//
-// FUNCIONAMENTO
-//   Ao ligar o Arduino fica DESLIGADO (standby): LEDs apagados.
-//   START/STOP (D3):
-//        desligado -&gt; inicia o teste
-//        teste rodando (ou resultado na tela) -&gt; desliga
-//   REINICIAR (D2): recomeca o teste do zero (so com o teste ligado)
-//
-//   Teste: amarelo acende -&gt; media 1 (10 s) -&gt; amarelo pisca 3x
-//   -&gt; &quot;FACA A PERGUNTA&quot; -&gt; media 2 (15 s) -&gt; 3 LEDs + &quot;ANALISANDO...&quot;
-//   -&gt; fica so o LED do resultado:
-//        media 2 &gt; media 1  = VERMELHO (mentira)
-//        media 2 &lt;= media 1 = VERDE (verdade)
-//
-// BIBLIOTECAS: &quot;Adafruit SSD1306&quot; e &quot;Adafruit GFX Library&quot;
-//
-// SERIAL (9600 baud)
-//   MODO_PLOTTER = true  -&gt; abra o Serial Plotter (grafico do pulso)
-//   MODO_PLOTTER = false -&gt; abra o Serial Monitor (textos)
 
 #include &lt;Wire.h&gt;
 #include &lt;Adafruit_GFX.h&gt;
